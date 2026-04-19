@@ -90,6 +90,10 @@ export SOURCE_REPOSITORY_ID="uuid-of-connected-repo"
 | `181e3d5` | Adds `ScratchpadTest` and `LegacySmokeTest`. |
 | `af49f0c` | Adds `Domain/MetricId`. |
 | `86a865c` | Tightens `LegacySmokeTest` (strict types, `final`). |
+| `137241f` | Adds `generate-import-manifest.php`; extends `manifest.example.json` with PHPCS. |
+| `c5d2d8c` | PHPCS converter: missing/empty JSON → `[]`; ERROR annotations use `failure`. |
+| `68c8716` | Replay: absolute PHPUnit paths for tests, `src` (coverage), and schema. |
+| `450db65` | Replay: absolute PHPCS `<file>` paths when the ruleset lives under `reports/.tmp/`. |
 
 Use `git log --oneline` for the full list.
 
