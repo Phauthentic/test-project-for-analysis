@@ -61,8 +61,8 @@ foreach ($imports as $row) {
 
     $abs = $file;
     if (!str_starts_with($abs, '/')) {
-        $try = $manifestDir . '/' . $file;
-        $abs = is_file($try) ? $try : (dirname($manifestDir) . '/' . $file);
+        $candidate = $manifestDir . '/' . $file;
+        $abs = is_file($candidate) ? $candidate : $file;
     }
 
     if (!is_file($abs)) {

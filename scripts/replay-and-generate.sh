@@ -45,7 +45,7 @@ for sha in "${COMMITS[@]}"; do
     >"reports/${sha}-phpstan-report.json"
 
   # phpcca -> GitLab Code Quality JSON
-  vendor/bin/phpcca analyse "$ROOT/src" -r json -f "reports/.tmp/cognitive-${sha}.json" >/dev/null
+  vendor/bin/phpcca analyse "$ROOT/src" -r json -f "reports/.tmp/cognitive-${sha}.json" >/dev/null 2>&1
   php "$TOOLKIT/convert-phpcca-json-to-gitlab-codequality.php" \
     "reports/.tmp/cognitive-${sha}.json" "$ROOT" 3 \
     >"reports/${sha}-cognitive-report.json"

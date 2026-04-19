@@ -1,22 +1,22 @@
 {
   "imports": [
     {
-      "commitSha": "0000000000000000000000000000000000000000",
+      "commitSha": "373b34c6b147445380c70453b67fd064b75df0f9",
       "toolName": "phpstan",
       "format": "github-actions",
-      "file": "reports/0000000000000000000000000000000000000000-phpstan-report.json"
+      "file": "reports/373b34c6b147445380c70453b67fd064b75df0f9-phpstan-report.json"
     },
     {
-      "commitSha": "0000000000000000000000000000000000000000",
+      "commitSha": "373b34c6b147445380c70453b67fd064b75df0f9",
       "toolName": "phpunit",
       "format": "github-actions",
-      "file": "reports/0000000000000000000000000000000000000000-phpunit-report.json"
+      "file": "reports/373b34c6b147445380c70453b67fd064b75df0f9-phpunit-report.json"
     },
     {
-      "commitSha": "0000000000000000000000000000000000000000",
+      "commitSha": "373b34c6b147445380c70453b67fd064b75df0f9",
       "toolName": "cognitive",
       "format": "gitlab-code-quality",
-      "file": "reports/0000000000000000000000000000000000000000-cognitive-report.json"
+      "file": "reports/373b34c6b147445380c70453b67fd064b75df0f9-cognitive-report.json"
     }
   ]
 }
