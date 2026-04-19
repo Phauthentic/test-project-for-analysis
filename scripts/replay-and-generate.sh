@@ -15,10 +15,10 @@ fi
 
 mkdir -p reports/.tmp
 
-# Converters must run from the current tree (latest tools/). Historical commits may not
-# include converter fixes, so snapshot tools/ before any checkout.
+# Converters + phpunit config from current tree (historical commits may lack fixes / <source>).
 TOOLKIT="$(mktemp -d)"
 cp "$ROOT/tools"/*.php "$TOOLKIT/"
+cp "$ROOT/phpunit.xml" "$TOOLKIT/phpunit-for-replay.xml"
 
 if [[ ! -f vendor/bin/phpstan ]]; then
   echo "Run composer install first." >&2
@@ -50,12 +50,13 @@ for sha in "${COMMITS[@]}"; do
     "reports/.tmp/cognitive-${sha}.json" "$ROOT" 3 \
     >"reports/${sha}-cognitive-report.json"
 
-  # PHPUnit -> JUnit (analysis) + Cobertura XML (coverage) in one run
+  # PHPUnit -> JUnit (analysis) + Cobertura (coverage); config from TOOLKIT for <source> on old commits
   junit_out="reports/.tmp/junit-${sha}.xml"
   cobertura_out="reports/${sha}-coverage-report.xml"
   set +e
   export XDEBUG_MODE=coverage
   vendor/bin/phpunit \
+    --configuration "$TOOLKIT/phpunit-for-replay.xml" \
     --log-junit "$junit_out" \
     --coverage-cobertura "$cobertura_out" \
     >/dev/null 2>&1
