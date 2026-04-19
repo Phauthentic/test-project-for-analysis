@@ -1,0 +1,22 @@
+{
+  "imports": [
+    {
+      "commitSha": "0000000000000000000000000000000000000000",
+      "toolName": "phpstan",
+      "format": "github-actions",
+      "file": "reports/0000000000000000000000000000000000000000-phpstan-report.json"
+    },
+    {
+      "commitSha": "0000000000000000000000000000000000000000",
+      "toolName": "phpunit",
+      "format": "github-actions",
+      "file": "reports/0000000000000000000000000000000000000000-phpunit-report.json"
+    },
+    {
+      "commitSha": "0000000000000000000000000000000000000000",
+      "toolName": "cognitive",
+      "format": "gitlab-code-quality",
+      "file": "reports/0000000000000000000000000000000000000000-cognitive-report.json"
+    }
+  ]
+}
