@@ -7,7 +7,7 @@ declare(strict_types=1);
  * Converts phauthentic cognitive-code-analysis JSON report to GitLab Code Quality JSON
  * accepted by Domain Atlas gitlab-code-quality importer.
  *
- * Emits findings for methods with score >= threshold (default: 5.0).
+ * Emits findings for methods with score >= threshold (default: 3.0).
  *
  * Usage: php convert-phpcca-json-to-gitlab-codequality.php <cognitive.json> [projectRoot] [minScore]
  */
@@ -22,7 +22,7 @@ if ($argc < 2) {
 
 $inputPath = $argv[1];
 $projectRoot = realpath($argv[2] ?? getcwd()) ?: getcwd();
-$minScore = isset($argv[3]) ? (float)$argv[3] : 5.0;
+$minScore = isset($argv[3]) ? (float)$argv[3] : 3.0;
 
 $raw = file_get_contents($inputPath);
 if ($raw === false) {

@@ -42,7 +42,7 @@ for sha in "${COMMITS[@]}"; do
   # phpcca -> GitLab Code Quality JSON
   vendor/bin/phpcca analyse "$ROOT/src" -r json -f "reports/.tmp/cognitive-${sha}.json" >/dev/null
   php tools/convert-phpcca-json-to-gitlab-codequality.php \
-    "reports/.tmp/cognitive-${sha}.json" "$ROOT" 5 \
+    "reports/.tmp/cognitive-${sha}.json" "$ROOT" 3 \
     >"reports/${sha}-cognitive-report.json"
 
   # PHPUnit -> JUnit -> GitHub annotations JSON
