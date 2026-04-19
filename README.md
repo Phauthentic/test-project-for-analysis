@@ -60,9 +60,10 @@ The replay script runs PHPUnit with `--coverage-cobertura` and writes:
 
 Requires **Xdebug** or **PCOV** (`XDEBUG_MODE=coverage` is set in the script for Xdebug 3).
 
-Generate a manifest and import:
+Generate manifests and import:
 
 ```bash
+php tools/generate-import-manifest.php
 php tools/generate-coverage-manifest.php
 export DOMAIN_ATLAS_BASE_URL="http://backend.atlas.local"
 export DOMAIN_ATLAS_TOKEN="your-jwt"
@@ -82,8 +83,15 @@ export SOURCE_REPOSITORY_ID="uuid-of-connected-repo"
 | `878d04b` | Lowers cognitive→GitLab threshold (score ≥ 3). |
 | `a912582` | Fixes phpcca FQCN leading backslash in GitLab export. |
 | `7d755b0` | Replay script: snapshot `tools/` before checkout so converters stay current. |
+| `fe49bc4` | Adds PHPCS (PSR-12), JSON converter, replay snapshot of `phpcs.xml.dist` from `main`. |
+| `99eba26` | Adds `Legacy/Scratchpad` (missing method visibility for PHPCS). |
+| `7363056` | Adds `Utilities/LineCounter`. |
+| `8e944bb` | Adds `Http/RequestStub`. |
+| `181e3d5` | Adds `ScratchpadTest` and `LegacySmokeTest`. |
+| `af49f0c` | Adds `Domain/MetricId`. |
+| `86a865c` | Tightens `LegacySmokeTest` (strict types, `final`). |
 
-Further commits may adjust documentation only; use `git log --oneline` for the full list.
+Use `git log --oneline` for the full list.
 
 ## Commands reference
 

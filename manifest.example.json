@@ -8,6 +8,12 @@
     },
     {
       "commitSha": "373b34c6b147445380c70453b67fd064b75df0f9",
+      "toolName": "phpcs",
+      "format": "github-actions",
+      "file": "reports/373b34c6b147445380c70453b67fd064b75df0f9-phpcs-report.json"
+    },
+    {
+      "commitSha": "373b34c6b147445380c70453b67fd064b75df0f9",
       "toolName": "phpunit",
       "format": "github-actions",
       "file": "reports/373b34c6b147445380c70453b67fd064b75df0f9-phpunit-report.json"
