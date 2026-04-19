@@ -17,10 +17,15 @@ if ($argc < 2) {
 $inputPath = $argv[1];
 $projectRoot = realpath($argv[2] ?? getcwd()) ?: getcwd();
 
+if (!is_file($inputPath)) {
+    echo "[]\n";
+    exit(0);
+}
+
 $raw = file_get_contents($inputPath);
-if ($raw === false) {
-    fwrite(STDERR, "Cannot read: {$inputPath}\n");
-    exit(1);
+if ($raw === false || trim($raw) === '') {
+    echo "[]\n";
+    exit(0);
 }
 
 try {
@@ -59,7 +64,7 @@ foreach ($files as $absolutePath => $fileData) {
         $source = isset($msg['source']) ? (string)$msg['source'] : 'phpcs';
         $type = isset($msg['type']) ? strtoupper((string)$msg['type']) : 'ERROR';
 
-        $level = $type === 'WARNING' ? 'warning' : 'warning';
+        $level = $type === 'WARNING' ? 'warning' : 'failure';
 
         $annotations[] = [
             'path' => str_replace('\\', '/', $relative),
