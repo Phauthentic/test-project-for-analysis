@@ -15,10 +15,26 @@ fi
 
 mkdir -p reports/.tmp
 
-# Converters + phpunit config from current tree (historical commits may lack fixes / <source>).
 TOOLKIT="$(mktemp -d)"
 cp "$ROOT/tools"/*.php "$TOOLKIT/"
-cp "$ROOT/phpunit.xml" "$TOOLKIT/phpunit-for-replay.xml"
+
+# PHPUnit: use main's config with absolute bootstrap (paths resolve correctly from project root).
+if git show main:phpunit.xml >/dev/null 2>&1; then
+  PHPUNIT_SRC="$(git show main:phpunit.xml)"
+else
+  PHPUNIT_SRC="$(cat "$ROOT/phpunit.xml")"
+fi
+printf '%s\n' "$PHPUNIT_SRC" | sed "s|bootstrap=\"vendor/autoload.php\"|bootstrap=\"${ROOT}/vendor/autoload.php\"|" \
+  >"$ROOT/reports/.tmp/phpunit-for-replay.xml"
+PHPUNIT_REPLAY="$ROOT/reports/.tmp/phpunit-for-replay.xml"
+
+# PHPCS: snapshot main ruleset so older commits still use current standard paths.
+if git show main:phpcs.xml.dist >/dev/null 2>&1; then
+  git show main:phpcs.xml.dist >"$ROOT/reports/.tmp/phpcs-for-replay.xml"
+else
+  cp "$ROOT/phpcs.xml.dist" "$ROOT/reports/.tmp/phpcs-for-replay.xml"
+fi
+PHPCS_REPLAY="$ROOT/reports/.tmp/phpcs-for-replay.xml"
 
 if [[ ! -f vendor/bin/phpstan ]]; then
   echo "Run composer install first." >&2
@@ -44,19 +60,31 @@ for sha in "${COMMITS[@]}"; do
   php "$TOOLKIT/convert-phpstan-json-to-github-annotations.php" "$phpstan_out" "$ROOT" \
     >"reports/${sha}-phpstan-report.json"
 
+  # PHPCS -> GitHub annotations JSON (older commits may not have phpcs in composer.lock)
+  phpcs_out="reports/.tmp/phpcs-${sha}.json"
+  if [[ -f vendor/bin/phpcs ]] && [[ -f "$PHPCS_REPLAY" ]]; then
+    set +e
+    vendor/bin/phpcs --standard="$PHPCS_REPLAY" --report=json --report-file="$phpcs_out" >/dev/null 2>&1
+    set -e
+    php "$TOOLKIT/convert-phpcs-json-to-github-annotations.php" "$phpcs_out" "$ROOT" \
+      >"reports/${sha}-phpcs-report.json"
+  else
+    echo '[]' >"reports/${sha}-phpcs-report.json"
+  fi
+
   # phpcca -> GitLab Code Quality JSON
   vendor/bin/phpcca analyse "$ROOT/src" -r json -f "reports/.tmp/cognitive-${sha}.json" >/dev/null 2>&1
   php "$TOOLKIT/convert-phpcca-json-to-gitlab-codequality.php" \
     "reports/.tmp/cognitive-${sha}.json" "$ROOT" 3 \
     >"reports/${sha}-cognitive-report.json"
 
-  # PHPUnit -> JUnit (analysis) + Cobertura (coverage); config from TOOLKIT for <source> on old commits
+  # PHPUnit -> JUnit (analysis) + Cobertura (coverage)
   junit_out="reports/.tmp/junit-${sha}.xml"
   cobertura_out="reports/${sha}-coverage-report.xml"
   set +e
   export XDEBUG_MODE=coverage
   vendor/bin/phpunit \
-    --configuration "$TOOLKIT/phpunit-for-replay.xml" \
+    --configuration "$PHPUNIT_REPLAY" \
     --log-junit "$junit_out" \
     --coverage-cobertura "$cobertura_out" \
     >/dev/null 2>&1

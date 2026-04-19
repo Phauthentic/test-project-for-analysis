@@ -1,6 +1,6 @@
 # Analysis test project
 
-Small PHP fixture used to generate **PHPStan**, **PHPUnit**, **Phauthentic cognitive-code-analysis**, and **PHPUnit Cobertura** coverage for Domain Atlas **Code Analysis** and **Code Coverage** time-series and UI testing.
+Small PHP fixture used to generate **PHPStan**, **PHP_CodeSniffer**, **PHPUnit**, **Phauthentic cognitive-code-analysis**, and **PHPUnit Cobertura** coverage for Domain Atlas **Code Analysis** and **Code Coverage** time-series and UI testing.
 
 ## Report file names
 
@@ -11,6 +11,7 @@ Reports use the **full 40-character Git commit SHA** (never short SHAs) so filen
 | Tool       | Extension | Domain Atlas `format` value   | Notes                                      |
 |-----------|-----------|-------------------------------|--------------------------------------------|
 | PHPStan   | `.json`   | `github-actions`              | Converted from `phpstan --error-format=json` |
+| PHPCS     | `.json`   | `github-actions`              | From `phpcs --report=json`; import `toolName`: `phpcs` |
 | PHPUnit   | `.json`   | `github-actions`              | JUnit XML converted to annotations array   |
 | Cognitive | `.json` | `gitlab-code-quality`         | phpcca JSON converted to GitLab schema       |
 | Coverage (PHPUnit) | `.xml` | `cobertura`              | Native Cobertura from `phpunit --coverage-cobertura` |
@@ -31,7 +32,7 @@ Optional: clear previous report files first:
 CLEAN=1 ./scripts/replay-and-generate.sh --clean
 ```
 
-The script snapshots `tools/*.php` from your **current** checkout first, then checks out each commit so analysis runs on historical `src/` while converters always use the latest scripts. Your working tree ends on the **last** commit; use `git checkout main` (or your branch) to return.
+The script snapshots **tools**, **phpunit.xml** (from `main`, absolute bootstrap), and **phpcs.xml.dist** (from `main`) before checkouts so historical commits use consistent rules. Your working tree ends on the **last** commit; use `git checkout main` (or your branch) to return.
 
 Cognitive reports include methods with **phpcca score ≥ 3** (see `scripts/replay-and-generate.sh` and `tools/convert-phpcca-json-to-gitlab-codequality.php`).
 
@@ -87,5 +88,6 @@ Further commits may adjust documentation only; use `git log --oneline` for the f
 ## Commands reference
 
 - PHPStan: `vendor/bin/phpstan analyse --configuration=phpstan.neon --no-progress --error-format=json`
+- PHPCS: `vendor/bin/phpcs --standard=phpcs.xml.dist --report=json --report-file=reports/.tmp/phpcs.json`
 - PHPUnit: `vendor/bin/phpunit --log-junit reports/.tmp/junit.xml --coverage-cobertura reports/<sha>-coverage-report.xml`
 - Cognitive: `vendor/bin/phpcca analyse src -r json -f reports/.tmp/cognitive.json`
