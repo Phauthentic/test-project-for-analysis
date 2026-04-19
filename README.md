@@ -62,6 +62,7 @@ Use `DRY_RUN=1` to print what would be uploaded without calling the API.
 | `878d04b` | Lowers cognitive→GitLab threshold (score ≥ 3). |
 | `a912582` | Fixes phpcca FQCN leading backslash in GitLab export. |
 | `7d755b0` | Replay script: snapshot `tools/` before checkout so converters stay current. |
+| `8f10ff0` | README commit table, `manifest.example.json`, import manifest path fix, quieter replay. |
 
 ## Commands reference
 
