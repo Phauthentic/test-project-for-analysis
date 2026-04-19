@@ -3,6 +3,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/load-env-local.php';
+
 /**
  * POSTs each manifest entry to Domain Atlas code-analysis import API.
  *

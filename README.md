@@ -41,12 +41,10 @@ Cognitive reports include methods with **phpcca score ≥ 3** (see `scripts/repl
 1. Push this repository (or a fork) and register it as a **Source repository** in Atlas so the same commit SHAs exist in the index.
 2. Generate reports locally with `./scripts/replay-and-generate.sh`.
 3. Build `manifest.json` (see `manifest.example.json`): list each `commitSha`, `toolName`, `format`, and `file` path relative to the manifest file.
-4. Run:
+4. Configure credentials: copy `.env.example` to **`.env.local`** (gitignored) and set `DOMAIN_ATLAS_BASE_URL`, `DOMAIN_ATLAS_TOKEN`, and `SOURCE_REPOSITORY_ID`. The import scripts load `.env.local` automatically; exported shell variables override it.
+5. Run:
 
 ```bash
-export DOMAIN_ATLAS_BASE_URL="https://your-atlas-host"
-export DOMAIN_ATLAS_TOKEN="your-jwt"
-export SOURCE_REPOSITORY_ID="uuid-of-connected-repo"
 ./scripts/import-to-domain-atlas.sh manifest.json
 ```
 
@@ -65,11 +63,10 @@ Generate manifests and import:
 ```bash
 php tools/generate-import-manifest.php
 php tools/generate-coverage-manifest.php
-export DOMAIN_ATLAS_BASE_URL="http://backend.atlas.local"
-export DOMAIN_ATLAS_TOKEN="your-jwt"
-export SOURCE_REPOSITORY_ID="uuid-of-connected-repo"
 ./scripts/import-coverage-to-domain-atlas.sh coverage-manifest.full.json
 ```
+
+(Ensure `.env.local` exists; see **Import into Domain Atlas** above.)
 
 ## Commits (deliberate issues)
 
