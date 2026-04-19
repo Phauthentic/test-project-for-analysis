@@ -34,12 +34,16 @@ printf '%s\n' "$PHPUNIT_SRC" | sed \
   >"$ROOT/reports/.tmp/phpunit-for-replay.xml"
 PHPUNIT_REPLAY="$ROOT/reports/.tmp/phpunit-for-replay.xml"
 
-# PHPCS: snapshot main ruleset so older commits still use current standard paths.
+# PHPCS: snapshot main ruleset; use absolute paths for <file> entries (config lives in reports/.tmp/).
 if git show main:phpcs.xml.dist >/dev/null 2>&1; then
-  git show main:phpcs.xml.dist >"$ROOT/reports/.tmp/phpcs-for-replay.xml"
+  PHPCS_SRC="$(git show main:phpcs.xml.dist)"
 else
-  cp "$ROOT/phpcs.xml.dist" "$ROOT/reports/.tmp/phpcs-for-replay.xml"
+  PHPCS_SRC="$(cat "$ROOT/phpcs.xml.dist")"
 fi
+printf '%s\n' "$PHPCS_SRC" | sed \
+  -e "s|<file>src</file>|<file>${ROOT}/src</file>|" \
+  -e "s|<file>tests</file>|<file>${ROOT}/tests</file>|" \
+  >"$ROOT/reports/.tmp/phpcs-for-replay.xml"
 PHPCS_REPLAY="$ROOT/reports/.tmp/phpcs-for-replay.xml"
 
 if [[ ! -f vendor/bin/phpstan ]]; then
