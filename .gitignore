@@ -2,3 +2,5 @@
 /.phpunit.cache/
 /reports/*
 !/reports/.gitkeep
+manifest.full.json
+coverage-manifest.full.json

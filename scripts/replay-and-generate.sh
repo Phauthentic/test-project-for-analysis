@@ -10,7 +10,7 @@ if [[ "${1:-}" == "--clean" ]]; then
 fi
 
 if [[ "$CLEAN" == "1" ]]; then
-  rm -f reports/*.json reports/*.sarif reports/.tmp/* 2>/dev/null || true
+  rm -f reports/*.json reports/*.xml reports/*.sarif reports/.tmp/* 2>/dev/null || true
 fi
 
 mkdir -p reports/.tmp
@@ -50,10 +50,15 @@ for sha in "${COMMITS[@]}"; do
     "reports/.tmp/cognitive-${sha}.json" "$ROOT" 3 \
     >"reports/${sha}-cognitive-report.json"
 
-  # PHPUnit -> JUnit -> GitHub annotations JSON
+  # PHPUnit -> JUnit (analysis) + Cobertura XML (coverage) in one run
   junit_out="reports/.tmp/junit-${sha}.xml"
+  cobertura_out="reports/${sha}-coverage-report.xml"
   set +e
-  vendor/bin/phpunit --log-junit "$junit_out" >/dev/null 2>&1
+  export XDEBUG_MODE=coverage
+  vendor/bin/phpunit \
+    --log-junit "$junit_out" \
+    --coverage-cobertura "$cobertura_out" \
+    >/dev/null 2>&1
   set -e
   php "$TOOLKIT/convert-junit-to-github-annotations.php" "$junit_out" "$ROOT" \
     >"reports/${sha}-phpunit-report.json"

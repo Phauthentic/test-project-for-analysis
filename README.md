@@ -1,6 +1,6 @@
 # Analysis test project
 
-Small PHP fixture used to generate **PHPStan**, **PHPUnit**, and **Phauthentic cognitive-code-analysis** reports for Domain Atlas **Code Analysis** time-series and UI testing.
+Small PHP fixture used to generate **PHPStan**, **PHPUnit**, **Phauthentic cognitive-code-analysis**, and **PHPUnit Cobertura** coverage for Domain Atlas **Code Analysis** and **Code Coverage** time-series and UI testing.
 
 ## Report file names
 
@@ -13,6 +13,7 @@ Reports use the **full 40-character Git commit SHA** (never short SHAs) so filen
 | PHPStan   | `.json`   | `github-actions`              | Converted from `phpstan --error-format=json` |
 | PHPUnit   | `.json`   | `github-actions`              | JUnit XML converted to annotations array   |
 | Cognitive | `.json` | `gitlab-code-quality`         | phpcca JSON converted to GitLab schema       |
+| Coverage (PHPUnit) | `.xml` | `cobertura`              | Native Cobertura from `phpunit --coverage-cobertura` |
 
 ## Generate reports for every commit
 
@@ -50,6 +51,24 @@ export SOURCE_REPOSITORY_ID="uuid-of-connected-repo"
 
 Use `DRY_RUN=1` to print what would be uploaded without calling the API.
 
+### Code coverage (Cobertura)
+
+The replay script runs PHPUnit with `--coverage-cobertura` and writes:
+
+`reports/<commitSha>-coverage-report.xml`
+
+Requires **Xdebug** or **PCOV** (`XDEBUG_MODE=coverage` is set in the script for Xdebug 3).
+
+Generate a manifest and import:
+
+```bash
+php tools/generate-coverage-manifest.php
+export DOMAIN_ATLAS_BASE_URL="http://backend.atlas.local"
+export DOMAIN_ATLAS_TOKEN="your-jwt"
+export SOURCE_REPOSITORY_ID="uuid-of-connected-repo"
+./scripts/import-coverage-to-domain-atlas.sh coverage-manifest.full.json
+```
+
 ## Commits (deliberate issues)
 
 | SHA (short) | Summary |
@@ -68,5 +87,5 @@ Further commits may adjust documentation only; use `git log --oneline` for the f
 ## Commands reference
 
 - PHPStan: `vendor/bin/phpstan analyse --configuration=phpstan.neon --no-progress --error-format=json`
-- PHPUnit: `vendor/bin/phpunit --log-junit reports/.tmp/junit.xml`
+- PHPUnit: `vendor/bin/phpunit --log-junit reports/.tmp/junit.xml --coverage-cobertura reports/<sha>-coverage-report.xml`
 - Cognitive: `vendor/bin/phpcca analyse src -r json -f reports/.tmp/cognitive.json`
