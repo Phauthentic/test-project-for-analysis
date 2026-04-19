@@ -24,7 +24,13 @@ if git show main:phpunit.xml >/dev/null 2>&1; then
 else
   PHPUNIT_SRC="$(cat "$ROOT/phpunit.xml")"
 fi
-printf '%s\n' "$PHPUNIT_SRC" | sed "s|bootstrap=\"vendor/autoload.php\"|bootstrap=\"${ROOT}/vendor/autoload.php\"|" \
+# Tests/bootstrap/schema paths must be absolute: PHPUnit resolves them relative to the config file
+# (here reports/.tmp/), not the project root.
+printf '%s\n' "$PHPUNIT_SRC" | sed \
+  -e "s|bootstrap=\"vendor/autoload.php\"|bootstrap=\"${ROOT}/vendor/autoload.php\"|" \
+  -e "s|<directory>tests</directory>|<directory>${ROOT}/tests</directory>|" \
+  -e "s|<directory suffix=\".php\">src</directory>|<directory suffix=\".php\">${ROOT}/src</directory>|" \
+  -e "s|xsi:noNamespaceSchemaLocation=\"vendor/phpunit/phpunit/phpunit.xsd\"|xsi:noNamespaceSchemaLocation=\"${ROOT}/vendor/phpunit/phpunit/phpunit.xsd\"|" \
   >"$ROOT/reports/.tmp/phpunit-for-replay.xml"
 PHPUNIT_REPLAY="$ROOT/reports/.tmp/phpunit-for-replay.xml"
 
