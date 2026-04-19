@@ -30,7 +30,7 @@ Optional: clear previous report files first:
 CLEAN=1 ./scripts/replay-and-generate.sh --clean
 ```
 
-The script checks out each commit, runs the three tools, and writes files under `reports/`. Your working tree ends on the **last** commit; use `git checkout main` (or your branch) to return.
+The script snapshots `tools/*.php` from your **current** checkout first, then checks out each commit so analysis runs on historical `src/` while converters always use the latest scripts. Your working tree ends on the **last** commit; use `git checkout main` (or your branch) to return.
 
 ## Import into Domain Atlas
 

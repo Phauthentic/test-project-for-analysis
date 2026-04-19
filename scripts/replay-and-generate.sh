@@ -15,6 +15,11 @@ fi
 
 mkdir -p reports/.tmp
 
+# Converters must run from the current tree (latest tools/). Historical commits may not
+# include converter fixes, so snapshot tools/ before any checkout.
+TOOLKIT="$(mktemp -d)"
+cp "$ROOT/tools"/*.php "$TOOLKIT/"
+
 if [[ ! -f vendor/bin/phpstan ]]; then
   echo "Run composer install first." >&2
   exit 1
@@ -36,12 +41,12 @@ for sha in "${COMMITS[@]}"; do
   set +e
   vendor/bin/phpstan analyse --configuration=phpstan.neon --no-progress --error-format=json >"$phpstan_out" 2>/dev/null
   set -e
-  php tools/convert-phpstan-json-to-github-annotations.php "$phpstan_out" "$ROOT" \
+  php "$TOOLKIT/convert-phpstan-json-to-github-annotations.php" "$phpstan_out" "$ROOT" \
     >"reports/${sha}-phpstan-report.json"
 
   # phpcca -> GitLab Code Quality JSON
   vendor/bin/phpcca analyse "$ROOT/src" -r json -f "reports/.tmp/cognitive-${sha}.json" >/dev/null
-  php tools/convert-phpcca-json-to-gitlab-codequality.php \
+  php "$TOOLKIT/convert-phpcca-json-to-gitlab-codequality.php" \
     "reports/.tmp/cognitive-${sha}.json" "$ROOT" 3 \
     >"reports/${sha}-cognitive-report.json"
 
@@ -50,9 +55,11 @@ for sha in "${COMMITS[@]}"; do
   set +e
   vendor/bin/phpunit --log-junit "$junit_out" >/dev/null 2>&1
   set -e
-  php tools/convert-junit-to-github-annotations.php "$junit_out" "$ROOT" \
+  php "$TOOLKIT/convert-junit-to-github-annotations.php" "$junit_out" "$ROOT" \
     >"reports/${sha}-phpunit-report.json"
 done
+
+rm -rf "$TOOLKIT"
 
 echo "Done. Reports in reports/ (filenames use full 40-char commit SHA)."
 echo "Restore branch: git checkout -"
