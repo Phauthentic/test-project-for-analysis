@@ -10,6 +10,6 @@ final class CalculatorTest extends TestCase
 {
     public function testAddsSmallIntegers(): void
     {
-        $this->assertSame(4, 2 + 2);
+        $this->assertSame(5, 2 + 2);
     }
 }
