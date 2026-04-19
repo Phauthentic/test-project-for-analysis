@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phauthentic\AnalysisTestProject\Tests;
 
 use PHPUnit\Framework\TestCase;
 
-class LegacySmokeTest extends TestCase
+final class LegacySmokeTest extends TestCase
 {
     public function testSmoke(): void
     {
