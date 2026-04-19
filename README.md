@@ -55,6 +55,9 @@ Use `DRY_RUN=1` to print what would be uploaded without calling the API.
 3. Adds `CognitiveHotspot.php` with a high-complexity method.
 4. Makes a unit test fail.
 5. Fixes the PHPStan file and the test, adds `AnotherPhpStanIssue.php`, keeps cognitive hotspot for mixed signals.
+6. Lowers the cognitive→GitLab converter threshold (score ≥ 3) so the hotspot produces importable findings.
+
+Cognitive reports include methods with **phpcca score ≥ 3** (see `scripts/replay-and-generate.sh` and `tools/convert-phpcca-json-to-gitlab-codequality.php`).
 
 ## Commands reference
 

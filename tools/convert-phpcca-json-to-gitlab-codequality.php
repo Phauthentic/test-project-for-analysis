@@ -52,6 +52,8 @@ foreach ($data as $className => $classBlock) {
         continue;
     }
 
+    $className = ltrim($className, '\\');
+
     $methods = $classBlock['methods'] ?? null;
     if (!is_array($methods)) {
         continue;
