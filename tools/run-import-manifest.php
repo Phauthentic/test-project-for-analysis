@@ -4,6 +4,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/load-env-local.php';
+require_once __DIR__ . '/domain-atlas-import-helpers.php';
 
 /**
  * POSTs each manifest entry to Domain Atlas code-analysis import API.
@@ -32,7 +33,7 @@ if (!is_array($imports)) {
     exit(1);
 }
 
-$baseUrl = rtrim((string)(getenv('DOMAIN_ATLAS_BASE_URL') ?: ''), '/');
+$baseUrl = normalizeDomainAtlasBaseUrl((string)(getenv('DOMAIN_ATLAS_BASE_URL') ?: ''));
 $token = (string)(getenv('DOMAIN_ATLAS_TOKEN') ?: '');
 $repoId = (string)(getenv('SOURCE_REPOSITORY_ID') ?: '');
 $dry = (string)(getenv('DRY_RUN') ?: '') === '1';
@@ -57,6 +58,13 @@ foreach ($imports as $row) {
 
     if ($commitSha === '' || $toolName === '' || $format === '' || $file === '') {
         fwrite(STDERR, "Skipping incomplete row\n");
+        $fail = 1;
+        continue;
+    }
+
+    if (isCoverageOnlyImportRow($file, $format, $toolName)) {
+        fwrite(STDERR, "Refusing code-analysis import for Cobertura/coverage row (file={$file}).\n");
+        fwrite(STDERR, "Use: php tools/run-coverage-import-manifest.php coverage-manifest.full.json\n");
         $fail = 1;
         continue;
     }

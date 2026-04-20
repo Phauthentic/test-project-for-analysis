@@ -42,10 +42,24 @@ Cognitive reports include methods with **phpcca score ≥ 3** (see `scripts/repl
 2. Generate reports locally with `./scripts/replay-and-generate.sh`.
 3. Build `manifest.json` (see `manifest.example.json`): list each `commitSha`, `toolName`, `format`, and `file` path relative to the manifest file.
 4. Configure credentials: copy `.env.example` to **`.env.local`** (gitignored) and set `DOMAIN_ATLAS_BASE_URL`, `DOMAIN_ATLAS_TOKEN`, and `SOURCE_REPOSITORY_ID`. The import scripts load `.env.local` automatically; exported shell variables override it.
-5. Run:
+5. **`DOMAIN_ATLAS_BASE_URL`** must be the API **origin only** (e.g. `http://backend.atlas.local`), not a path like `/api/code-analysis`. Otherwise coverage requests can be routed to the wrong API.
+6. **Two different endpoints:** static analysis / test metrics use **`/api/code-analysis/...`** (JSON reports: phpstan, phpcs, phpunit JUnit, cognitive). **Cobertura line coverage** uses **`/api/code-coverage/...`** only. `scripts/import-to-domain-atlas.sh` and `run-import-manifest.php` refuse Cobertura rows; use `import-coverage-to-domain-atlas.sh` for `*-coverage-report.xml`.
+
+Run **one or both** imports:
 
 ```bash
-./scripts/import-to-domain-atlas.sh manifest.json
+php tools/generate-import-manifest.php
+php tools/generate-coverage-manifest.php
+
+./scripts/import-to-domain-atlas.sh manifest.full.json
+./scripts/import-coverage-to-domain-atlas.sh coverage-manifest.full.json
+```
+
+Or run both in order (regenerates manifests, then analysis, then coverage):
+
+```bash
+chmod +x scripts/import-all-to-domain-atlas.sh
+./scripts/import-all-to-domain-atlas.sh
 ```
 
 Use `DRY_RUN=1` to print what would be uploaded without calling the API.
@@ -58,15 +72,7 @@ The replay script runs PHPUnit with `--coverage-cobertura` and writes:
 
 Requires **Xdebug** or **PCOV** (`XDEBUG_MODE=coverage` is set in the script for Xdebug 3).
 
-Generate manifests and import:
-
-```bash
-php tools/generate-import-manifest.php
-php tools/generate-coverage-manifest.php
-./scripts/import-coverage-to-domain-atlas.sh coverage-manifest.full.json
-```
-
-(Ensure `.env.local` exists; see **Import into Domain Atlas** above.)
+(Ensure `.env.local` exists; Cobertura imports use `import-coverage-to-domain-atlas.sh` as above.)
 
 ## Commits (deliberate issues)
 

@@ -4,6 +4,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/load-env-local.php';
+require_once __DIR__ . '/domain-atlas-import-helpers.php';
 
 /**
  * POSTs each manifest entry to Domain Atlas code-coverage import API (Cobertura).
@@ -34,7 +35,7 @@ if (!is_array($imports)) {
     exit(1);
 }
 
-$baseUrl = rtrim((string)(getenv('DOMAIN_ATLAS_BASE_URL') ?: ''), '/');
+$baseUrl = normalizeDomainAtlasBaseUrl((string)(getenv('DOMAIN_ATLAS_BASE_URL') ?: ''));
 $token = (string)(getenv('DOMAIN_ATLAS_TOKEN') ?: '');
 $repoId = (string)(getenv('SOURCE_REPOSITORY_ID') ?: '');
 $dry = (string)(getenv('DRY_RUN') ?: '') === '1';
@@ -58,6 +59,18 @@ foreach ($imports as $row) {
 
     if ($commitSha === '' || $format === '' || $file === '') {
         fwrite(STDERR, "Skipping incomplete row (need commitSha, format, file)\n");
+        $fail = 1;
+        continue;
+    }
+
+    if (strtolower($format) !== 'cobertura') {
+        fwrite(STDERR, "Coverage import expects format \"cobertura\", got: {$format}\n");
+        $fail = 1;
+        continue;
+    }
+
+    if (!str_ends_with(strtolower($file), '.xml')) {
+        fwrite(STDERR, "Expected Cobertura XML (.xml): {$file}\n");
         $fail = 1;
         continue;
     }
