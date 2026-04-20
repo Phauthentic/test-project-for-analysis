@@ -50,3 +50,11 @@ function isCoverageOnlyImportRow(string $file, string $format, string $toolName)
 
     return false;
 }
+
+/**
+ * PHPUnit JUnit → annotations JSON must not use the code-analysis import API; use Cobertura on code-coverage.
+ */
+function isPhpunitToolForbiddenForAnalysisImport(string $toolName): bool
+{
+    return strtolower($toolName) === 'phpunit';
+}

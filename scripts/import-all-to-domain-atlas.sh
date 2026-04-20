@@ -10,7 +10,7 @@ php "$ROOT/tools/generate-coverage-manifest.php"
 MANIFEST="${1:-$ROOT/manifest.full.json}"
 COV_MANIFEST="${2:-$ROOT/coverage-manifest.full.json}"
 
-echo "=== Code analysis (phpstan, phpcs, phpunit, cognitive) → /api/code-analysis/... ==="
+echo "=== Code analysis (phpstan, phpcs, cognitive) → /api/code-analysis/... ==="
 "$ROOT/scripts/import-to-domain-atlas.sh" "$MANIFEST"
 
 echo "=== Coverage (Cobertura) → /api/code-coverage/... ==="

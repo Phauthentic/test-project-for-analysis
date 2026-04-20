@@ -4,7 +4,10 @@
 declare(strict_types=1);
 
 /**
- * Writes manifest.full.json: phpstan, phpcs, phpunit, cognitive per commit (git rev-list --reverse HEAD).
+ * Writes manifest.full.json: phpstan, phpcs, cognitive per commit (git rev-list --reverse HEAD).
+ *
+ * PHPUnit JUnit → GitHub JSON is not sent to the code-analysis API; use Cobertura on the
+ * code-coverage API for PHPUnit line coverage (see generate-coverage-manifest.php).
  *
  * Usage: php generate-import-manifest.php [output-path]
  */
@@ -15,7 +18,6 @@ $commits = array_filter(explode("\n", trim((string)shell_exec('git rev-list --re
 $tools = [
     ['toolName' => 'phpstan', 'format' => 'github-actions', 'suffix' => 'phpstan-report.json'],
     ['toolName' => 'phpcs', 'format' => 'github-actions', 'suffix' => 'phpcs-report.json'],
-    ['toolName' => 'phpunit', 'format' => 'github-actions', 'suffix' => 'phpunit-report.json'],
     ['toolName' => 'cognitive', 'format' => 'gitlab-code-quality', 'suffix' => 'cognitive-report.json'],
 ];
 

@@ -7,7 +7,8 @@ require_once __DIR__ . '/load-env-local.php';
 require_once __DIR__ . '/domain-atlas-import-helpers.php';
 
 /**
- * POSTs each manifest entry to Domain Atlas code-analysis import API.
+ * POSTs each manifest entry to Domain Atlas code-analysis import API (phpstan, phpcs, cognitive).
+ * Rejects toolName phpunit and Cobertura/coverage rows.
  *
  * Env: DOMAIN_ATLAS_BASE_URL, DOMAIN_ATLAS_TOKEN, SOURCE_REPOSITORY_ID
  * Env: DRY_RUN=1 to print only
@@ -58,6 +59,13 @@ foreach ($imports as $row) {
 
     if ($commitSha === '' || $toolName === '' || $format === '' || $file === '') {
         fwrite(STDERR, "Skipping incomplete row\n");
+        $fail = 1;
+        continue;
+    }
+
+    if (isPhpunitToolForbiddenForAnalysisImport($toolName)) {
+        fwrite(STDERR, "Refusing code-analysis import for toolName \"phpunit\" (JUnit test-run report).\n");
+        fwrite(STDERR, "Use Cobertura on the code-coverage API: php tools/run-coverage-import-manifest.php coverage-manifest.full.json\n");
         $fail = 1;
         continue;
     }

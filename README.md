@@ -12,9 +12,9 @@ Reports use the **full 40-character Git commit SHA** (never short SHAs) so filen
 |-----------|-----------|-------------------------------|--------------------------------------------|
 | PHPStan   | `.json`   | `github-actions`              | Converted from `phpstan --error-format=json` |
 | PHPCS     | `.json`   | `github-actions`              | From `phpcs --report=json`; import `toolName`: `phpcs` |
-| PHPUnit   | `.json`   | `github-actions`              | JUnit XML converted to annotations array   |
 | Cognitive | `.json` | `gitlab-code-quality`         | phpcca JSON converted to GitLab schema       |
-| Coverage (PHPUnit) | `.xml` | `cobertura`              | Native Cobertura from `phpunit --coverage-cobertura` |
+| PHPUnit JUnit (optional) | `.json` | — | Replay still writes `*-phpunit-report.json` (JUnit → annotations); **not** imported to code-analysis (use Cobertura for PHPUnit in Atlas). |
+| Coverage (PHPUnit) | `.xml` | `cobertura`              | Native Cobertura from `phpunit --coverage-cobertura` → **code-coverage** API only |
 
 ## Generate reports for every commit
 
@@ -43,7 +43,7 @@ Cognitive reports include methods with **phpcca score ≥ 3** (see `scripts/repl
 3. Build `manifest.json` (see `manifest.example.json`): list each `commitSha`, `toolName`, `format`, and `file` path relative to the manifest file.
 4. Configure credentials: copy `.env.example` to **`.env.local`** (gitignored) and set `DOMAIN_ATLAS_BASE_URL`, `DOMAIN_ATLAS_TOKEN`, and `SOURCE_REPOSITORY_ID`. The import scripts load `.env.local` automatically; exported shell variables override it.
 5. **`DOMAIN_ATLAS_BASE_URL`** must be the API **origin only** (e.g. `http://backend.atlas.local`), not a path like `/api/code-analysis`. Otherwise coverage requests can be routed to the wrong API.
-6. **Two different endpoints:** static analysis / test metrics use **`/api/code-analysis/...`** (JSON reports: phpstan, phpcs, phpunit JUnit, cognitive). **Cobertura line coverage** uses **`/api/code-coverage/...`** only. `scripts/import-to-domain-atlas.sh` and `run-import-manifest.php` refuse Cobertura rows; use `import-coverage-to-domain-atlas.sh` for `*-coverage-report.xml`.
+6. **Two different endpoints:** **`/api/code-analysis/...`** imports **phpstan**, **phpcs**, and **cognitive** only. **`/api/code-coverage/...`** imports **PHPUnit Cobertura** (`*-coverage-report.xml`). PHPUnit test-run JUnit is not sent to code-analysis. `run-import-manifest.php` refuses Cobertura rows; use `import-coverage-to-domain-atlas.sh` for coverage XML.
 
 Run **one or both** imports:
 
