@@ -1,6 +1,6 @@
 # Analysis test project
 
-Small PHP fixture used to generate **PHPStan**, **PHP_CodeSniffer**, **PHPUnit**, **Phauthentic cognitive-code-analysis**, and **PHPUnit Cobertura** coverage for Domain Atlas **Code Analysis** and **Code Coverage** time-series and UI testing.
+Small PHP fixture used to generate **PHPStan**, **PHP_CodeSniffer**, **PHPUnit**, **Phauthentic cognitive-code-analysis**, **PHPUnit Cobertura** coverage, and **phploc** JSON for Domain Atlas **Code Analysis**, **Code Coverage**, and **Code Metrics** time-series and UI testing.
 
 ## Report file names
 
@@ -15,6 +15,7 @@ Reports use the **full 40-character Git commit SHA** (never short SHAs) so filen
 | Cognitive | `.json` | `gitlab-code-quality`         | phpcca JSON converted to GitLab schema       |
 | PHPUnit JUnit (optional) | `.json` | — | Replay still writes `*-phpunit-report.json` (JUnit → annotations); **not** imported to code-analysis (use Cobertura for PHPUnit in Atlas). |
 | Coverage (PHPUnit) | `.xml` | `cobertura`              | Native Cobertura from `phpunit --coverage-cobertura` → **code-coverage** API only |
+| Metrics (line scan) | `.json` | `phploc-json` | `tools/generate-phploc-style-metrics.php` (phploc-compatible summary, no phploc package) → **code-metrics** API (`toolName`: `phploc`) |
 
 ## Generate reports for every commit
 
@@ -43,22 +44,24 @@ Cognitive reports include methods with **phpcca score ≥ 3** (see `scripts/repl
 3. Build `manifest.json` (see `manifest.example.json`): list each `commitSha`, `toolName`, `format`, and `file` path relative to the manifest file.
 4. Configure credentials: copy `.env.example` to **`.env.local`** (gitignored) and set `DOMAIN_ATLAS_BASE_URL`, `DOMAIN_ATLAS_TOKEN`, and `SOURCE_REPOSITORY_ID`. The import scripts load `.env.local` automatically; exported shell variables override it.
 5. **`DOMAIN_ATLAS_BASE_URL`** must be the API **origin only** (e.g. `http://backend.atlas.local`), not a path like `/api/code-analysis`. Otherwise coverage requests can be routed to the wrong API.
-6. **Two different endpoints:** **`/api/code-analysis/...`** imports **phpstan**, **phpcs**, and **cognitive** only. **`/api/code-coverage/...`** imports **PHPUnit Cobertura** (`*-coverage-report.xml`). PHPUnit test-run JUnit is not sent to code-analysis. `run-import-manifest.php` refuses Cobertura rows; use `import-coverage-to-domain-atlas.sh` for coverage XML.
+6. **Three API families:** **`/api/code-analysis/...`** imports **phpstan**, **phpcs**, and **cognitive** only. **`/api/code-coverage/...`** imports **PHPUnit Cobertura** (`*-coverage-report.xml`). **`/api/code-metrics/...`** imports **phploc** JSON (`*-phploc-report.json`, `format` `phploc-json`). PHPUnit test-run JUnit is not sent to code-analysis. `run-import-manifest.php` refuses Cobertura rows; use `import-coverage-to-domain-atlas.sh` for coverage XML.
 
 Run **one or both** imports:
 
 ```bash
 php tools/generate-import-manifest.php
 php tools/generate-coverage-manifest.php
+php tools/generate-metrics-manifest.php
 
 ./scripts/import-to-domain-atlas.sh manifest.full.json
 ./scripts/import-coverage-to-domain-atlas.sh coverage-manifest.full.json
+./scripts/import-metrics-to-domain-atlas.sh metrics-manifest.full.json
 ```
 
-Or run both in order (regenerates manifests, then analysis, then coverage):
+Or run all three in order (regenerates manifests, then analysis, coverage, metrics):
 
 ```bash
-chmod +x scripts/import-all-to-domain-atlas.sh
+chmod +x scripts/import-all-to-domain-atlas.sh scripts/import-metrics-to-domain-atlas.sh
 ./scripts/import-all-to-domain-atlas.sh
 ```
 
@@ -73,6 +76,14 @@ The replay script runs PHPUnit with `--coverage-cobertura` and writes:
 Requires **Xdebug** or **PCOV** (`XDEBUG_MODE=coverage` is set in the script for Xdebug 3).
 
 (Ensure `.env.local` exists; Cobertura imports use `import-coverage-to-domain-atlas.sh` as above.)
+
+### Code metrics (phploc-compatible JSON)
+
+The replay script runs `tools/generate-phploc-style-metrics.php` (copied into a temp toolkit like the other converters) and writes:
+
+`reports/<commitSha>-phploc-report.json`
+
+Values are a **project-level** line count summary (LOC / NCLOC / comment-ish lines), compatible with Domain Atlas `phploc-json` import. Import with `import-metrics-to-domain-atlas.sh` or `import-all-to-domain-atlas.sh` (see above).
 
 ## Commits (deliberate issues)
 

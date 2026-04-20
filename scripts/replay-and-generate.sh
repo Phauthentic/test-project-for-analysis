@@ -101,6 +101,9 @@ for sha in "${COMMITS[@]}"; do
   set -e
   php "$TOOLKIT/convert-junit-to-github-annotations.php" "$junit_out" "$ROOT" \
     >"reports/${sha}-phpunit-report.json"
+
+  # phploc-compatible JSON (code-metrics API: toolName phploc, format phploc-json)
+  php "$TOOLKIT/generate-phploc-style-metrics.php" "$ROOT" "$ROOT/reports/${sha}-phploc-report.json"
 done
 
 rm -rf "$TOOLKIT"
